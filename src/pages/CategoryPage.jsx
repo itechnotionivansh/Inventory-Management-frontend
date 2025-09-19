@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import categoriesData from "../data/categories.json";
-import { getCategories, getProducts } from "../utils/localStorageHelper";
+// import categoriesData from "../data/categories.json";
+import { getToken } from "../utils/authHelper";
 import CategoryList from "../components/categories/CategoryList";
 import ProductModal from "../components/products/ProductModal";
 import Sidebar from "../components/layout/Sidebar";
@@ -18,19 +18,20 @@ export default function CategoryPage() {
   const role = getRole();
 
   useEffect(() => {
-    // Load categories and products using helper
-    const categories = getCategories().length
-      ? getCategories()
-      : categoriesData;
-    const products = getProducts();
-
-    // Count products per category
-    const updatedCategories = categories.map((cat) => {
-      const count = products.filter((p) => p.category === cat.name).length;
-      return { ...cat, productCount: count };
-    });
-    setCategories(updatedCategories);
-    setCategories(updatedCategories);
+    const fetchCategories = async () => {
+      try {
+        const token = getToken();
+        const res = await fetch("http://localhost:5000/api/v1/categories/", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (res.ok && data.categories) {
+          // Add productCount as 0 (optional: fetch product counts separately if needed)
+          setCategories(data.categories.map(cat => ({ ...cat, productCount: 0 })));
+        }
+      } catch {}
+    };
+    fetchCategories();
   }, []);
 
   const handleAddProductClick = (category) => {
@@ -39,41 +40,41 @@ export default function CategoryPage() {
   };
 
   const handleProductAdded = (newProduct) => {
-    // Add product to localStorage
-    const stored = localStorage.getItem("products");
-    const products = stored ? JSON.parse(stored) : [];
-    const updatedProducts = [
-      ...products,
-      { ...newProduct, id: products.length + 1, rating: { rate: 0, count: 0 } },
-    ];
-    localStorage.setItem("products", JSON.stringify(updatedProducts));
-
-    // Update category product count
-    setCategories((prev) =>
-      prev.map((cat) =>
-        cat.id === selectedCategory.id
-          ? { ...cat, productCount: cat.productCount + 1 }
-          : cat
-      )
-    );
+    // Optionally, refetch categories or update productCount if needed
     setShowModal(false);
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 2000);
   };
 
-  const handleAddCategory = (newCategory) => {
-    const updated = [
-      ...categories,
-      { ...newCategory, id: categories.length + 1, productCount: 0 },
-    ];
-    setCategories(updated);
-    localStorage.setItem("categories", JSON.stringify(updated));
+  const handleAddCategory = async (newCategory) => {
+    const token = getToken();
+    try {
+      const res = await fetch("http://localhost:5000/api/v1/categories/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ name: newCategory.name }),
+      });
+      const data = await res.json();
+      if (res.ok && data.category) {
+        setCategories((prev) => [...prev, { ...data.category, productCount: 0 }]);
+      }
+    } catch {}
   };
 
-  const handleDeleteCategory = (categoryId) => {
-    const updated = categories.filter((cat) => cat.id !== categoryId);
-    setCategories(updated);
-    localStorage.setItem("categories", JSON.stringify(updated));
+  const handleDeleteCategory = async (categoryId) => {
+    const token = getToken();
+    try {
+      const res = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        setCategories((prev) => prev.filter((cat) => cat.id !== categoryId));
+      }
+    } catch {}
   };
 
   return (

@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import { getUsername } from "../../utils/authHelper";
-// ...existing code...
-import { getCategories, getProducts } from "../../utils/localStorageHelper";
+import { getUsername, getToken } from "../../utils/authHelper";
 
 const colorOptions = ["Black", "White", "Yellow", "Green", "Blue", "Red"];
 
@@ -52,12 +50,21 @@ export default function ProductModal({
     isCategoryContext,
   ]);
 
-  // Get categories from centralized helper
-  const categories = getCategories().length
-    ? getCategories()
-    : [
-        
-      ];
+  // Fetch categories from backend
+  const [categories, setCategories] = useState([]);
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const token = getToken();
+        const res = await fetch("http://localhost:5000/api/v1/categories/", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (res.ok && data.categories) setCategories(data.categories);
+      } catch {}
+    };
+    fetchCategories();
+  }, []);
 
   const handleColorChange = (color) => {
     if (colors.includes(color)) {
@@ -85,23 +92,14 @@ export default function ProductModal({
     if (!price || isNaN(price) || Number(price) <= 0)
       newErrors.price = "Valid price is required.";
     const finalCategory = isCategoryContext ? category.name : selectedCategory;
-    // Unique name validation (case-insensitive). Allow same record when editing
-    const products = getProducts();
-    const normalizedInputName = name.trim().toLowerCase();
-    const hasDuplicate = products.some(
-      (p) =>
-        p.name &&
-        p.name.trim().toLowerCase() === normalizedInputName &&
-        (!id || p.id !== id)
-    );
-    if (hasDuplicate) newErrors.name = "Product name already exists.";
+    // No local duplicate check; backend will validate
     if (!finalCategory) newErrors.category = "Category is required.";
     if (colors.length === 0)
       newErrors.colors = "At least one color is required.";
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validate();
     if (Object.keys(newErrors).length > 0) {
@@ -110,37 +108,51 @@ export default function ProductModal({
       return;
     }
     const finalCategory = isCategoryContext ? category.name : selectedCategory;
-    let newProduct;
-    if (id) {
-      // Edit mode
-      newProduct = {
-        id,
-        name,
-        category: finalCategory,
-        price: parseFloat(price),
-        colors,
-        tags,
-        uploader: uploader || getUsername(),
-      };
-    } else {
-      // Add mode
-      newProduct = {
-        id: Date.now(),
-        name,
-        category: finalCategory,
-        price: parseFloat(price),
-        colors,
-        tags,
-        uploader: getUsername(),
-      };
-    }
+    const token = getToken();
     try {
-      onAddProduct(newProduct);
+      let res, data;
+      if (id) {
+        // Edit mode
+        res = await fetch(`http://localhost:5000/api/v1/products/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            name,
+            price: parseFloat(price),
+            colors,
+            tags,
+            category_name: finalCategory,
+          }),
+        });
+      } else {
+        // Add mode
+        res = await fetch("http://localhost:5000/api/v1/products/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            name,
+            price: parseFloat(price),
+            colors,
+            tags,
+            category_name: finalCategory,
+          }),
+        });
+      }
+      data = await res.json();
+      if (!res.ok) {
+        setPopup({ message: data.error || "Failed to save product.", type: "error" });
+        return;
+      }
+      onAddProduct(data.product);
       setErrors({});
       setPopup({
-        message: id
-          ? "Product updated successfully!"
-          : "Product added successfully!",
+        message: id ? "Product updated successfully!" : "Product added successfully!",
         type: "success",
       });
       setTimeout(() => {

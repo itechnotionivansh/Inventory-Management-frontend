@@ -22,24 +22,29 @@ export default function RegisterForm() {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validate();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-    const userExists = users.find((user) => user.email === email);
-    if (userExists) {
-      setErrors({ email: "User with this email already exists!" });
-      return;
+    try {
+      const res = await fetch("http://localhost:5000/api/v1/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setErrors({ email: data.error || "Registration failed" });
+        return;
+      }
+      setErrors({});
+      navigate("/login");
+    } catch (err) {
+      setErrors({ email: "Network error. Please try again." });
     }
-    const newUser = { name, email, password, role: "User" };
-    users.push(newUser);
-    localStorage.setItem("users", JSON.stringify(users));
-    setErrors({});
-    navigate("/login");
   };
 
   return (

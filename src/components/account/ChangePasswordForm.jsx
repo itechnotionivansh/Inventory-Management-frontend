@@ -1,6 +1,6 @@
 import { useState } from "react";
 // ...existing code...
-import { getRole } from "../../utils/authHelper";
+import { getToken } from "../../utils/authHelper";
 
 export default function ChangePasswordForm() {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -21,53 +21,48 @@ export default function ChangePasswordForm() {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validate();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-    const role = getRole();
-    let users = JSON.parse(localStorage.getItem("users")) || [];
-    let email = localStorage.getItem("email");
-    // For admin, use configurable stored password
-    if (role === "Admin" && email === "admin@gmail.com") {
-      const storedAdminPassword =
-        localStorage.getItem("admin_password") || "123456";
-      if (currentPassword !== storedAdminPassword) {
-        setErrors({ currentPassword: "Current password is incorrect." });
+    const token = getToken();
+    try {
+      const res = await fetch("http://localhost:5000/api/v1/auth/change-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          current_password: currentPassword,
+          new_password: newPassword,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (data.details && Array.isArray(data.details)) {
+          // Pydantic validation errors
+          const errObj = {};
+          data.details.forEach((d) => {
+            if (d.loc && d.loc.length > 0) errObj[d.loc[d.loc.length-1]] = d.msg;
+          });
+          setErrors(errObj);
+        } else {
+          setErrors({ currentPassword: data.error || "Change password failed" });
+        }
         return;
       }
-      if (newPassword === currentPassword) {
-        setErrors({ newPassword: "New password must differ from current." });
-        return;
-      }
-      localStorage.setItem("admin_password", newPassword);
       setErrors({});
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      return;
+      // Optionally show a success message
+    } catch (err) {
+      setErrors({ currentPassword: "Network error. Please try again." });
     }
-    // For registered users
-    const userIndex = users.findIndex(
-      (user) => user.email === email && user.password === currentPassword
-    );
-    if (userIndex === -1) {
-      setErrors({ currentPassword: "Current password is incorrect." });
-      return;
-    }
-    if (newPassword === currentPassword) {
-      setErrors({ newPassword: "New password must differ from current." });
-      return;
-    }
-    users[userIndex].password = newPassword;
-    localStorage.setItem("users", JSON.stringify(users));
-    setErrors({});
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
   };
 
   return (

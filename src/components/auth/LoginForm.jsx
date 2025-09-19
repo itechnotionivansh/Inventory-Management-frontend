@@ -18,30 +18,29 @@ export default function LoginForm() {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validate();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-    // Check for admin credentials first (configurable via localStorage)
-    const storedAdminPassword =
-      localStorage.getItem("admin_password") || "123456";
-    if (email === "admin@gmail.com" && password === storedAdminPassword) {
-      setAuth("fake-jwt-token", "Admin", "Admin", email);
+    try {
+      const res = await fetch("http://localhost:5000/api/v1/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setErrors({ password: data.error || "Login failed" });
+        return;
+      }
+      // Store JWT and user info
+      setAuth(data.access_token, data.user.role, data.user.name, data.user.email);
       navigate("/dashboard");
-      return;
-    }
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-    const user = users.find(
-      (user) => user.email === email && user.password === password
-    );
-    if (user) {
-      setAuth("fake-jwt-token", user.role, user.name, user.email);
-      navigate("/dashboard");
-    } else {
-      setErrors({ password: "Invalid credentials!" });
+    } catch (err) {
+      setErrors({ password: "Network error. Please try again." });
     }
   };
 

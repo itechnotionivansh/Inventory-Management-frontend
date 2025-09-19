@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import productsData from "../data/products.json";
+// import productsData from "../data/products.json";
 import Sidebar from "../components/layout/Sidebar";
 import Navbar from "../components/layout/Navbar";
 import ProductGridCard from "../components/products/ProductGridCard";
 import ProductModal from "../components/products/ProductModal";
-import { getRole } from "../utils/authHelper";
+import { getRole, getToken } from "../utils/authHelper";
 
 export default function ProductPage() {
   const [products, setProducts] = useState([]);
@@ -14,41 +14,39 @@ export default function ProductPage() {
   const role = getRole();
 
   useEffect(() => {
-    const stored = localStorage.getItem("products");
-    if (stored) {
-      setProducts(JSON.parse(stored));
-    } else {
-      setProducts(productsData);
-      localStorage.setItem("products", JSON.stringify(productsData));
-    }
+    const fetchProducts = async () => {
+      try {
+        const token = getToken();
+        const res = await fetch("http://localhost:5000/api/v1/products/", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (res.ok && data.products) setProducts(data.products);
+      } catch {}
+    };
+    fetchProducts();
   }, []);
 
-  const addProduct = (newProduct) => {
-    let updated;
+  // Add or update product in state after backend response
+  const addProduct = (product) => {
     if (editingProduct) {
-      // Edit existing product: merge updates into current item
-      updated = products.map((p) =>
-        p.id === editingProduct.id ? { ...p, ...newProduct } : p
-      );
+      setProducts((prev) => prev.map((p) => (p.id === product.id ? product : p)));
     } else {
-      // Add new product
-      updated = [
-        ...products,
-        {
-          ...newProduct,
-          id: products.length + 1,
-          rating: { rate: 0, count: 0 },
-        },
-      ];
+      setProducts((prev) => [...prev, product]);
     }
-    setProducts(updated);
-    localStorage.setItem("products", JSON.stringify(updated));
   };
 
-  const handleDeleteProduct = (productId) => {
-    const updated = products.filter((p) => p.id !== productId);
-    setProducts(updated);
-    localStorage.setItem("products", JSON.stringify(updated));
+  const handleDeleteProduct = async (productId) => {
+    const token = getToken();
+    try {
+      const res = await fetch(`http://localhost:5000/api/v1/products/${productId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        setProducts((prev) => prev.filter((p) => p.id !== productId));
+      }
+    } catch {}
   };
 
   return (

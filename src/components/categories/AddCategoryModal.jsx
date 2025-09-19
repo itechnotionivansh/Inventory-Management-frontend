@@ -5,15 +5,19 @@ export default function AddCategoryModal({ onClose, onAddCategory }) {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim()) {
       setError("Category name is required!");
       return;
     }
-    onAddCategory({ name });
-    setError("");
-    onClose();
+    try {
+      await onAddCategory({ name });
+      setError("");
+      onClose();
+    } catch (err) {
+      setError("Failed to add category.");
+    }
   };
 
   return (

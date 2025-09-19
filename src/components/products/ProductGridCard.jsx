@@ -54,7 +54,7 @@ export default function ProductGridCard({
           />
           <div className="relative bg-primary-800 w-80 rounded-xl shadow-lg p-5 z-10">
             <h4 className="text-lg font-semibold mb-2">Delete product?</h4>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-primary-200 mb-4">
               Are you sure you want to delete '{product.name}'? This action
               cannot be undone.
             </p>
