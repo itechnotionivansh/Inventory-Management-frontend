@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "name": "iPhone 14 Pro Max",
+    "category": "Mobiles",
+    "price": 129900,
+    "colors": ["Black", "Silver", "Gold", "Deep Purple"],
+    "tags": ["Apple", "Flagship", "Premium"]
+  },
+  {
+    "id": 2,
+    "name": "Samsung Galaxy S23 Ultra",
+    "category": "Mobiles",
+    "price": 124999,
+    "colors": ["Black", "Green", "Lavender", "Cream"],
+    "tags": ["Samsung", "Android", "Camera"]
+  },
+  {
+    "id": 3,
+    "name": "Sony WH-1000XM5",
+    "category": "Accessories",
+    "price": 29990,
+    "colors": ["Black", "Silver"],
+    "tags": ["Sony", "Headphones", "Noise Cancelling"]
+  },
+  {
+    "id": 4,
+    "name": "MacBook Air M2",
+    "category": "Laptops",
+    "price": 114900,
+    "colors": ["Space Gray", "Silver", "Starlight", "Midnight"],
+    "tags": ["Apple", "Laptop", "M2 Chip"]
+  },
+  {
+    "id": 5,
+    "name": "Dell XPS 13",
+    "category": "Laptops",
+    "price": 99990,
+    "colors": ["Silver", "White"],
+    "tags": ["Dell", "Ultrabook", "Windows"]
+  }
+]

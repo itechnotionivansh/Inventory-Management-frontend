@@ -1,0 +1,21 @@
+
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  background-color: #3f4550; /* primary-900 */
+  color: #c0c6cf; /* primary-200 */
+}
+
+.card {
+  padding: 2em;
+  background-color: #54546c; /* primary-800 */
+  color: #c0c6cf; /* primary-200 */
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(63,69,80,0.1);
+}
+
+.read-the-docs {
+  color: #a2aab5; /* primary-400 */
+}
