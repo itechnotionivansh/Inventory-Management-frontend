@@ -7,6 +7,7 @@ import RegisterPage from "./pages/RegisterPage";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
 import AccountsPage from "./pages/AccountsPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import { getToken, getRole } from "./utils/authHelper";
 
 // ✅ Base auth check
@@ -33,6 +34,7 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
       {/* Protected for all authenticated users */}
       <Route
