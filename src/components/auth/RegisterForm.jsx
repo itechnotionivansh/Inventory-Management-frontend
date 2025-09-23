@@ -9,6 +9,7 @@ export default function RegisterForm() {
   const navigate = useNavigate();
 
   const [errors, setErrors] = useState({});
+  const [popup, setPopup] = useState("");
 
   const validate = () => {
     const newErrors = {};
@@ -41,58 +42,69 @@ export default function RegisterForm() {
         return;
       }
       setErrors({});
-      navigate("/login");
+      setPopup("Registration successful! Redirecting to login...");
+      setTimeout(() => {
+        setPopup("");
+        navigate("/login");
+      }, 2000);
     } catch (err) {
       setErrors({ email: "Network error. Please try again." });
     }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-  className="bg-primary-800 p-6 rounded-2xl shadow-lg w-80">
-      <h2 className="text-2xl font-bold mb-4 text-center">Register</h2>
-      <div className="mb-3">
-        <input
-          type="text"
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full border p-2 rounded text-black"
-        />
-        {errors.name && (
-          <div className="text-red-600 text-sm mt-1">{errors.name}</div>
-        )}
-      </div>
-      <div className="mb-3">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full border p-2 rounded text-black"
-        />
-        {errors.email && (
-          <div className="text-red-600 text-sm mt-1">{errors.email}</div>
-        )}
-      </div>
-      <div className="mb-3">
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full border p-2 rounded text-black"
-        />
-        {errors.password && (
-          <div className="text-red-600 text-sm mt-1">{errors.password}</div>
-        )}
-      </div>
-      <button
-        type="submit"
-        className="w-full px-4 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition">
-        Register
-      </button>
-    </form>
+    <>
+      {popup && (
+        <div className="fixed top-8 right-8 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+          {popup}
+        </div>
+      )}
+      <form
+        onSubmit={handleSubmit}
+        className="bg-primary-800 p-6 rounded-2xl shadow-lg w-80">
+        <h2 className="text-2xl font-bold mb-4 text-center">Register</h2>
+        <div className="mb-3">
+          <input
+            type="text"
+            placeholder="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full border p-2 rounded text-black"
+          />
+          {errors.name && (
+            <div className="text-red-600 text-sm mt-1">{errors.name}</div>
+          )}
+        </div>
+        <div className="mb-3">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full border p-2 rounded text-black"
+          />
+          {errors.email && (
+            <div className="text-red-600 text-sm mt-1">{errors.email}</div>
+          )}
+        </div>
+        <div className="mb-3">
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full border p-2 rounded text-black"
+          />
+          {errors.password && (
+            <div className="text-red-600 text-sm mt-1">{errors.password}</div>
+          )}
+        </div>
+        <button
+          type="submit"
+          className="w-full px-4 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition">
+          Register
+        </button>
+      </form>
+    </>
   );
 }

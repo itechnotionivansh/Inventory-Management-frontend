@@ -7,6 +7,7 @@ export default function ChangePasswordForm() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState({});
+  const [popup, setPopup] = useState("");
 
   const validate = () => {
     const newErrors = {};
@@ -59,14 +60,21 @@ export default function ChangePasswordForm() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      // Optionally show a success message
+      setPopup("Password changed successfully!");
+      setTimeout(() => setPopup(""), 2000);
     } catch (err) {
       setErrors({ currentPassword: "Network error. Please try again." });
     }
   };
 
   return (
-  <form onSubmit={handleSubmit} className="bg-primary-800 p-8 rounded-2xl shadow">
+    <>
+      {popup && (
+        <div className="fixed top-8 right-8 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+          {popup}
+        </div>
+      )}
+      <form onSubmit={handleSubmit} className="bg-primary-800 p-8 rounded-2xl shadow">
       <div className="mb-4">
         <label className="block text-primary-200 mb-2" htmlFor="current-password">
           Current Password
@@ -119,11 +127,12 @@ export default function ChangePasswordForm() {
           </div>
         )}
       </div>
-      <button
-        type="submit"
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
-        Update Password
-      </button>
-    </form>
+        <button
+          type="submit"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
+          Update Password
+        </button>
+      </form>
+    </>
   );
 }
