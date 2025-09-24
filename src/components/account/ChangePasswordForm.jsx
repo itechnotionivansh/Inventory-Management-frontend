@@ -40,6 +40,7 @@ export default function ChangePasswordForm() {
         body: JSON.stringify({
           current_password: currentPassword,
           new_password: newPassword,
+          confirm_new_password: confirmPassword,
         }),
       });
       const data = await res.json();

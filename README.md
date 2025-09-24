@@ -1,12 +1,67 @@
-# React + Vite
+A frontend React application built with Vite, Tailwind CSS, and React Router for managing products,categories and users
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Features
+ Built with Vite (fast development + optimized build)
+ Styled with Tailwind CSS
+ Routing handled by React Router DOM
+ Notifications with React Toastify
+ Form validation with Formik + Yup
+ Organized folder structure
 
-Currently, two official plugins are available:
+frontend/
+Of course. Here is that folder structure in a text format:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+├── node_modules/
+├── public/
+├── src/
+│   ├── components/
+│   │   ├── account/
+│   │   ├── auth/
+│   │   ├── categories/
+│   │   ├── layout/
+│   │   ├── products/
+│   │   └── shared/
+│   ├── data/
+│   ├── pages/
+│   ├── utils/
+│   ├── App.css
+│   ├── App.jsx
+│   ├── Compo.jsx
+│   ├── index.css
+│   └── main.jsx
+├── .gitignore
+├── eslint.config.js
+├── index.html
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── README.md
+├── tailwind.config.js
+└── vite.config.js
 
-## Expanding the ESLint configuration
+Installation & Setup
+Clone the repository
+https://github.com/itechnotionivansh/Inventory-Management-frontend.git
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+git clone 
+
+
+cd frontend
+
+Install dependencies
+
+npm install
+
+Run the development server
+
+npm run dev
+
+Dependencies
+
+react
+react-router-dom
+axios
+formik & yup
+react-icons
+react-toastify
+tailwindcss
